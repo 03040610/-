@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>就活Doc自動生成</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; margin: 0; padding: 24px; max-width: 640px; margin-left: auto; margin-right: auto; background: #f8f9fa; color: #212529; }
+    h1 { font-size: 2.5rem; margin: 0 0 24px; }
+    .section-title { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #6c757d; margin: 28px 0 12px; padding-bottom: 6px; border-bottom: 2px solid #dee2e6; }
+    .field { margin-bottom: 16px; }
+    label { display: block; font-weight: 600; margin-bottom: 6px; }
+    .badge { display: inline-block; font-size: 0.68rem; font-weight: 700; padding: 2px 7px; border-radius: 4px; margin-left: 6px; vertical-align: middle; }
+    .badge-required { background: #fde8e8; color: #c0392b; }
+    .badge-optional { background: #e8f4fd; color: #1a6fb0; }
+    input[type="text"], select, textarea {
+      width: 100%; padding: 10px 12px; border: 1px solid #ced4da; border-radius: 6px;
+      font-size: 1rem; font-family: inherit; background: #fff; color: #212529;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    input[type="text"]:focus, select:focus, textarea:focus {
+      outline: none; border-color: #86b7fe; box-shadow: 0 0 0 3px rgba(13,110,253,0.15);
+    }
+    textarea { resize: vertical; min-height: 90px; }
+    select {
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%236c757d' d='M6 8L0 0h12z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 12px center; padding-right: 36px;
+    }
+    .url-list { display: flex; flex-direction: column; gap: 8px; }
+    .url-row { display: flex; gap: 8px; align-items: center; }
+    .url-row input { flex: 1; }
+    .btn-remove {
+      flex-shrink: 0; width: 34px; height: 40px; padding: 0;
+      background: #f8f9fa; color: #6c757d; border: 1px solid #ced4da; border-radius: 6px;
+      font-size: 1rem; line-height: 1; cursor: pointer;
+    }
+    .btn-remove:hover { background: #fde8e8; color: #c0392b; border-color: #f5c6cb; }
+    .btn-add {
+      margin-top: 8px; padding: 6px 14px;
+      background: #e7f1ff; color: #0d6efd; border: 1px solid #b6d4fe;
+      border-radius: 6px; font-size: 0.88rem; font-weight: 600; cursor: pointer;
+    }
+    .btn-add:hover { background: #cfe2ff; }
+    .btn-generate {
+      padding: 12px 28px; background: #0d6efd; color: #fff;
+      border: none; border-radius: 6px; font-size: 1rem; cursor: pointer; margin-top: 8px;
+    }
+    .btn-generate:hover { background: #0b5ed7; }
+    .btn-generate:disabled { opacity: 0.6; cursor: not-allowed; }
+    .progress { margin-top: 20px; padding: 12px; background: #e7f1ff; border-radius: 6px; display: none; }
+    .progress.visible { display: block; }
+    .result { margin-top: 24px; }
+    .result-list { list-style: none; padding: 0; margin: 0; }
+    .result-list li { margin-bottom: 8px; }
+    .result-list a { color: #0d6efd; }
+    .error { color: #dc3545; margin-top: 12px; }
+    .radio-group { display: flex; flex-direction: column; gap: 10px; }
+    .radio-label { display: flex; align-items: center; gap: 8px; font-weight: normal; cursor: pointer; }
+    .radio-label input[type="radio"] { width: auto; margin: 0; accent-color: #0d6efd; }
+    .es-question-row { display: flex; gap: 8px; align-items: flex-start; margin-bottom: 10px; }
+    .es-question-row textarea { flex: 1; min-height: 60px; resize: vertical; }
+    .es-char-limit { width: 90px; flex-shrink: 0; }
+    #customEsArea { margin-top: 4px; padding: 14px; background: #f0f6ff; border: 1px solid #b6d4fe; border-radius: 6px; }
+    #additionalEsArea { margin-top: 4px; padding: 14px; background: #f0f6ff; border: 1px solid #b6d4fe; border-radius: 6px; }
+    .field-hint { font-size: 0.82rem; color: #6c757d; margin: 0 0 10px; }
+  </style>
+</head>
+<body>
+  <h1>就活Doc自動生成</h1>
+
+  <div class="section-title">必須項目</div>
+
+  <div class="field">
+    <label for="companyName">会社名 <span class="badge badge-required">必須</span></label>
+    <input type="text" id="companyName" placeholder="例：株式会社〇〇" autocomplete="off">
+  </div>
+  <div class="field">
+    <label for="recruitUrl">採用ページURL <span class="badge badge-required">必須</span></label>
+    <input type="text" id="recruitUrl" placeholder="https://careers.example.com/" autocomplete="off">
+  </div>
+  <div class="field">
+    <label for="jobType">応募職種 <span class="badge badge-required">必須</span></label>
+    <input type="text" id="jobType" placeholder="例：データサイエンティスト" autocomplete="off">
+  </div>
+  <div class="field">
+    <label for="phase">選考フェーズ <span class="badge badge-required">必須</span></label>
+    <select id="phase">
+      <option value="">-- 選択してください --</option>
+      <option value="ES">ES</option>
+      <option value="1次面接">1次面接</option>
+      <option value="2次面接">2次面接</option>
+      <option value="最終面接">最終面接</option>
+    </select>
+  </div>
+
+  <div class="field">
+    <label>ESモード <span class="badge badge-required">必須</span></label>
+    <div class="radio-group">
+      <label class="radio-label">
+        <input type="radio" name="esMode" value="template" checked onchange="handleEsModeChange()">
+        テンプレートESを生成する
+      </label>
+      <label class="radio-label">
+        <input type="radio" name="esMode" value="custom" onchange="handleEsModeChange()">
+        実際のES設問に回答する
+      </label>
+    </div>
+  </div>
+
+  <div id="customEsArea" style="display:none;">
+    <div style="font-weight:600; margin-bottom:10px;">ES設問入力 <span style="font-size:0.8rem; font-weight:normal; color:#6c757d;">（最大10設問）</span></div>
+    <div id="esQuestionsList"></div>
+    <button type="button" class="btn-add" id="btnAddEsQuestion" onclick="addEsQuestion()">＋ ES設問を追加</button>
+  </div>
+
+  <div class="section-title">任意項目</div>
+
+  <div class="field">
+    <label>IR・有価証券報告書URL <span class="badge badge-optional">任意・複数可</span></label>
+    <div class="url-list" id="irUrlsList">
+      <div class="url-row">
+        <input type="text" placeholder="https://..." autocomplete="off">
+        <button type="button" class="btn-remove" onclick="removeUrlRow(this)" title="削除">×</button>
+      </div>
+    </div>
+    <button type="button" class="btn-add" onclick="addUrlRow('irUrlsList')">＋ 追加</button>
+  </div>
+
+  <div class="field">
+    <label>社長インタビュー記事URL <span class="badge badge-optional">任意・複数可</span></label>
+    <div class="url-list" id="interviewUrlsList">
+      <div class="url-row">
+        <input type="text" placeholder="https://..." autocomplete="off">
+        <button type="button" class="btn-remove" onclick="removeUrlRow(this)" title="削除">×</button>
+      </div>
+    </div>
+    <button type="button" class="btn-add" onclick="addUrlRow('interviewUrlsList')">＋ 追加</button>
+  </div>
+
+  <div class="field">
+    <label>ニュース記事URL <span class="badge badge-optional">任意・複数可</span></label>
+    <div class="url-list" id="newsUrlsList">
+      <div class="url-row">
+        <input type="text" placeholder="https://..." autocomplete="off">
+        <button type="button" class="btn-remove" onclick="removeUrlRow(this)" title="削除">×</button>
+      </div>
+    </div>
+    <button type="button" class="btn-add" onclick="addUrlRow('newsUrlsList')">＋ 追加</button>
+  </div>
+
+  <div class="field">
+    <label for="pastQuestions">過去の面接で聞かれた質問 <span class="badge badge-optional">任意</span></label>
+    <textarea id="pastQuestions" placeholder="例：&#10;・あなたの強みを教えてください&#10;・なぜ当社を志望したのですか"></textarea>
+  </div>
+
+  <div class="field">
+    <label for="concerns">企業への懸念・気になる点 <span class="badge badge-optional">任意</span></label>
+    <textarea id="concerns" placeholder="例：&#10;・離職率が高い印象がある&#10;・特定事業への依存度が高い点が気になる"></textarea>
+  </div>
+
+  <div class="field">
+    <label>会社独自のES設問 <span class="badge badge-optional">任意</span></label>
+    <p class="field-hint">志望動機・自己PR・ガクチカ以外の、この会社特有の設問があれば追加してください</p>
+    <div id="additionalEsArea">
+      <div id="additionalEsQuestionsList"></div>
+      <button type="button" class="btn-add" onclick="addAdditionalEsQuestion()">＋ 設問を追加</button>
+    </div>
+  </div>
+
+  <div class="field">
+    <button id="btnGenerate" class="btn-generate" onclick="handleGenerate()">生成する</button>
+  </div>
+
+  <div id="progress" class="progress"><span id="progressText">処理中…</span></div>
+  <div id="result" class="result" style="display:none;">
+    <h2>生成したドキュメント</h2>
+    <ul id="resultList" class="result-list"></ul>
+  </div>
+  <div id="error" class="error" style="display:none;"></div>
+  <div id="usage" style="margin-top: 16px; font-size: 0.9rem; color: #555;"></div>
+
+  <script>
+    var LABELS = { REFERENCE_URLS: '1. 参考URLまとめ', COMPANY_OVERVIEW: '2. 会社概要まとめ', APPEAL_POINTS: '3. アピールポイント', QA_COLLECTION: '4. 想定質問返答集', ES_OPTIMIZATION: '5. ES自動最適化', REVERSE_QUESTIONS: '6. 刺さる逆質問' };
+    var DOC_ORDER = ['REFERENCE_URLS', 'COMPANY_OVERVIEW', 'APPEAL_POINTS', 'QA_COLLECTION', 'ES_OPTIMIZATION', 'REVERSE_QUESTIONS'];
+    var progressInterval = null;
+
+    function handleEsModeChange() {
+      var mode = document.querySelector('input[name="esMode"]:checked').value;
+      var area = document.getElementById('customEsArea');
+      area.style.display = mode === 'custom' ? 'block' : 'none';
+      if (mode === 'custom' && document.getElementById('esQuestionsList').children.length === 0) {
+        addEsQuestion();
+      }
+    }
+
+    function addEsQuestion() {
+      var list = document.getElementById('esQuestionsList');
+      if (list.querySelectorAll('.es-question-row').length >= 10) {
+        alert('ES設問は最大10件まで追加できます。');
+        return;
+      }
+      var row = document.createElement('div');
+      row.className = 'es-question-row';
+      row.innerHTML = '<textarea placeholder="例：学生時代に最も力を入れたことを教えてください" autocomplete="off"></textarea>' +
+        '<input type="number" class="es-char-limit" placeholder="例：400" min="50" max="2000" autocomplete="off">' +
+        '<button type="button" class="btn-remove" onclick="removeEsQuestion(this)" title="削除">\xd7</button>';
+      list.appendChild(row);
+    }
+
+    function removeEsQuestion(btn) {
+      var row = btn.parentElement;
+      var list = row.parentElement;
+      if (list.querySelectorAll('.es-question-row').length > 1) {
+        list.removeChild(row);
+      } else {
+        row.querySelector('textarea').value = '';
+        row.querySelector('.es-char-limit').value = '';
+      }
+    }
+
+    function collectEsQuestions() {
+      var rows = document.querySelectorAll('#esQuestionsList .es-question-row');
+      var questions = [];
+      for (var i = 0; i < rows.length; i++) {
+        var q = rows[i].querySelector('textarea').value.trim();
+        var c = parseInt(rows[i].querySelector('.es-char-limit').value, 10);
+        if (q) questions.push({ question: q, charLimit: isNaN(c) ? 400 : c });
+      }
+      return questions;
+    }
+
+    function addAdditionalEsQuestion() {
+      var list = document.getElementById('additionalEsQuestionsList');
+      if (list.querySelectorAll('.additional-es-row').length >= 10) {
+        alert('追加設問は最大10件まで追加できます。');
+        return;
+      }
+      var row = document.createElement('div');
+      row.className = 'es-question-row additional-es-row';
+      row.innerHTML = '<textarea placeholder="例：あなたが考えるDXとは？" rows="2" autocomplete="off"></textarea>' +
+        '<input type="number" class="es-char-limit" placeholder="文字数 例：300" min="50" max="2000" autocomplete="off">' +
+        '<button type="button" class="btn-remove" onclick="removeAdditionalEsQuestion(this)" title="削除">\xd7</button>';
+      list.appendChild(row);
+    }
+
+    function removeAdditionalEsQuestion(btn) {
+      var row = btn.parentElement;
+      row.parentElement.removeChild(row);
+    }
+
+    function collectAdditionalEsQuestions() {
+      var rows = document.querySelectorAll('#additionalEsQuestionsList .additional-es-row');
+      var questions = [];
+      for (var i = 0; i < rows.length; i++) {
+        var q = rows[i].querySelector('textarea').value.trim();
+        var c = parseInt(rows[i].querySelector('.es-char-limit').value, 10);
+        if (q) questions.push({ question: q, charLimit: isNaN(c) ? 300 : c });
+      }
+      return questions;
+    }
+
+    function addUrlRow(listId) {
+      var list = document.getElementById(listId);
+      var row = document.createElement('div');
+      row.className = 'url-row';
+      row.innerHTML = '<input type="text" placeholder="https://..." autocomplete="off"><button type="button" class="btn-remove" onclick="removeUrlRow(this)" title="削除">\xd7</button>';
+      list.appendChild(row);
+    }
+
+    function removeUrlRow(btn) {
+      var row = btn.parentElement;
+      var list = row.parentElement;
+      if (list.querySelectorAll('.url-row').length > 1) {
+        list.removeChild(row);
+      } else {
+        row.querySelector('input[type="text"]').value = '';
+      }
+    }
+
+    function collectUrls(listId) {
+      var inputs = document.querySelectorAll('#' + listId + ' input[type="text"]');
+      var urls = [];
+      for (var i = 0; i < inputs.length; i++) {
+        var v = inputs[i].value.trim();
+        if (v) urls.push(v);
+      }
+      return urls;
+    }
+
+    function startProgressPolling(progressKey) {
+      if (progressInterval) clearInterval(progressInterval);
+      progressInterval = setInterval(function () {
+        if (typeof google !== 'undefined' && google.script && google.script.run) {
+          google.script.run.withSuccessHandler(function (p) {
+            if (p && p.label) {
+              var textEl = document.getElementById('progressText');
+              if (textEl) {
+                var stepPrefix = p.step > 0 ? '[' + p.step + '/' + (p.totalSteps || 6) + '] ' : '';
+                textEl.textContent = stepPrefix + p.label;
+              }
+            }
+          }).getGenerationProgress(progressKey);
+        }
+      }, 1500);
+    }
+
+    function stopProgressPolling() {
+      if (progressInterval) {
+        clearInterval(progressInterval);
+        progressInterval = null;
+      }
+    }
+
+    function handleGenerate() {
+      if (typeof google === 'undefined' || !google.script || !google.script.run) {
+        alert('GASのWebアプリとしてデプロイしたURLから開いてください。');
+        return;
+      }
+      var companyName = document.getElementById('companyName').value.trim();
+      if (!companyName) { alert('会社名を入力してください。'); return; }
+      var recruitUrl = document.getElementById('recruitUrl').value.trim();
+      if (!recruitUrl) { alert('採用ページURLを入力してください。'); return; }
+      if (!/^https?:\/\//i.test(recruitUrl)) { alert('採用ページURLは http:// または https:// で入力してください。'); return; }
+      var jobType = document.getElementById('jobType').value.trim();
+      if (!jobType) { alert('応募職種を入力してください。'); return; }
+      var phase = document.getElementById('phase').value;
+      if (!phase) { alert('選考フェーズを選択してください。'); return; }
+
+      var esMode = document.querySelector('input[name="esMode"]:checked').value;
+      var inputData = {
+        recruitUrl: recruitUrl,
+        jobType: jobType,
+        phase: phase,
+        irUrls: collectUrls('irUrlsList'),
+        interviewUrls: collectUrls('interviewUrlsList'),
+        newsUrls: collectUrls('newsUrlsList'),
+        pastQuestions: document.getElementById('pastQuestions').value.trim(),
+        concerns: document.getElementById('concerns').value.trim(),
+        esMode: esMode,
+        customEsQuestions: esMode === 'custom' ? collectEsQuestions() : [],
+        additionalEsQuestions: collectAdditionalEsQuestions()
+      };
+
+      var btn = document.getElementById('btnGenerate');
+      var progress = document.getElementById('progress');
+      var result = document.getElementById('result');
+      var errorEl = document.getElementById('error');
+      var usageEl = document.getElementById('usage');
+      var progressKey = 'gen_' + Date.now() + '_' + Math.floor(Math.random() * 10000);
+
+      btn.disabled = true;
+      progress.classList.add('visible');
+      progress.querySelector('#progressText').textContent = '生成準備中…';
+      result.style.display = 'none';
+      errorEl.style.display = 'none';
+      errorEl.textContent = '';
+      if (usageEl) usageEl.textContent = '';
+
+      startProgressPolling(progressKey);
+
+      google.script.run.withSuccessHandler(function (res) {
+        stopProgressPolling();
+        btn.disabled = false;
+        progress.classList.remove('visible');
+        if (usageEl && typeof res === 'object') {
+          if (typeof res.totalTokens === 'number') {
+            var costText = (typeof res.costYen === 'number')
+              ? ' / 概算コスト: ' + res.costYen + ' 円'
+              : '';
+            usageEl.textContent = '使用トークン数: ' + res.totalTokens + costText;
+          } else {
+            usageEl.textContent = '';
+          }
+        }
+        if (res && res.success) {
+          renderResults(res.docUrls);
+          result.style.display = 'block';
+        } else {
+          errorEl.textContent = (res && res.error) ? res.error : 'エラーが発生しました';
+          errorEl.style.display = 'block';
+          if (res && res.docUrls && Object.keys(res.docUrls).length > 0) {
+            renderResults(res.docUrls);
+            result.style.display = 'block';
+          }
+        }
+      }).withFailureHandler(function (err) {
+        stopProgressPolling();
+        btn.disabled = false;
+        progress.classList.remove('visible');
+        errorEl.textContent = (err && err.message) ? err.message : (err ? String(err) : '通信エラーが発生しました');
+        errorEl.style.display = 'block';
+      }).generateCompanyPack(companyName, inputData, progressKey);
+    }
+
+    function renderResults(docUrls) {
+      if (!docUrls || typeof docUrls !== 'object') return;
+      var ul = document.getElementById('resultList');
+      ul.innerHTML = '';
+      DOC_ORDER.forEach(function (key) {
+        var url = docUrls[key];
+        if (!url || typeof url !== 'string') return;
+        // 安全な Google Docs URL のみリンク化
+        if (!/^https:\/\/docs\.google\.com\//i.test(url) && !/^https:\/\/drive\.google\.com\//i.test(url)) return;
+
+        var li = document.createElement('li');
+        var a = document.createElement('a');
+        a.href = url;
+        a.target = '_blank';
+        a.rel = 'noopener noreferrer';
+        a.textContent = (LABELS[key] || key) + ' →';
+        li.appendChild(a);
+        ul.appendChild(li);
+      });
+    }
+  </script>
+</body>
+</html>

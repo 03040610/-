@@ -1,0 +1,13 @@
+# Node modules
+node_modules/
+
+# OS / Editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Secret & User specific files
+# .clasp.json や 自己分析をGit管理から外したい場合は以下のコメントアウトを外してください
+# syukatu/.clasp.json
+# syukatu/SelfAnalysis.js
